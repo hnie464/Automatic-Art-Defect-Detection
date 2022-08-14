@@ -28,11 +28,11 @@ plt.rc('figure', max_open_warning = 0)   # Removes 20 plot limit warning
 
 
 # IMPORT .TIF FILE:
-im = tf.imread('D:/Honours Project/Lumedica Data/07062022_Hendrik/4 Rembrandt Scans/20220607-155040/Rembrandt_RightSideHouse (Crop).tif')
+im = tf.imread('...')   # Insert .TIF file path here.
 
 # B-SCAN RANGE: (CAUTION: Will create a plot for every B-scan in range)
-start = 55   # 0 Min
-finish = 511   # 511 Max
+start = 0   # 0 Min
+finish = 10   # 511 Max
 
 
 
@@ -70,59 +70,53 @@ plt.show()
 
 
 
-# # === SURFACE & DETECTION MAPPING === #
-# for n in range(start, finish + 1):  # +1 to include the end of the range in the list
-#     x = x - start + 1;  # make x start at 1
-#     surf1 = af.surfaceDetect(im[n,0:im.shape[1],0:im.shape[2]],thresh=threshStrict,padSize=0,scale=1,buffer=10,skip=5)   # thresh=30000
-#     surf2 = af.surfaceDetect2(im[n,0:im.shape[1],0:im.shape[2]],thresh=threshSmooth,padSize=0,scale=1,buffer=10,skip=5)   # thresh=10000
-#     plt.figure()
-#     #plt.ylim(400)
-#     plt.imshow(im[n,:,:],cmap='gray')
-#     x = np.arange(0,im.shape[2],1)   # Fixes x-axis plotting issue
-#     line1 = plt.plot(x,surf1,'-', color='red', linewidth=0.5)
-#     line2 = plt.plot(x,surf2,'-', color='cyan', linewidth=0.5)
-#     plt.title('B-Scan: n, '+ str(n))
+# === SURFACE & DETECTION MAPPING === #
+for n in range(start, finish + 1):  # +1 to include the end of the range in the list
+    x = x - start + 1;  # make x start at 1
+    surf1 = af.surfaceDetect(im[n,0:im.shape[1],0:im.shape[2]],thresh=threshStrict,padSize=0,scale=1,buffer=10,skip=5)   # thresh=30000
+    surf2 = af.surfaceDetect2(im[n,0:im.shape[1],0:im.shape[2]],thresh=threshSmooth,padSize=0,scale=1,buffer=10,skip=5)   # thresh=10000
+    plt.figure()
+    #plt.ylim(400)
+    plt.imshow(im[n,:,:],cmap='gray')
+    x = np.arange(0,im.shape[2],1)   # Fixes x-axis plotting issue
+    line1 = plt.plot(x,surf1,'-', color='red', linewidth=0.5)
+    line2 = plt.plot(x,surf2,'-', color='cyan', linewidth=0.5)
+    plt.title('B-Scan: n, '+ str(n))
     
 
 
-# # DUAL-LINE ANALYSIS (TECHNIQUE 2)    
-#     for b in range(20,492): # 0,im.shape[2]
-#         distance = abs(surf1[b]-surf2[b])
-#         if distance >= 15: #12 default
-#             Detected = True
-#             #print(distance, x[surf1[b]], surf1[b])
-#             plt.plot(x[b], surf1[b], marker='+', color='cyan')
-#             print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[b], 'y =', surf1[b])
-#             break
-#         # if distance <= -12: #-12 default
-#         #     Detected = True
-#         #     #print(distance, x[surf1[b]], surf1[b])
-#         #     plt.plot(x[b], surf1[b], marker='+', color='cyan')
-#         #     print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[b], 'y =', surf1[b])
-#         #     break
+# DUAL-LINE ANALYSIS (TECHNIQUE 2)    
+    for b in range(20,492): # 0,im.shape[2]
+        distance = abs(surf1[b]-surf2[b])
+        if distance >= 15: #12 default
+            Detected = True
+            #print(distance, x[surf1[b]], surf1[b])
+            plt.plot(x[b], surf1[b], marker='+', color='cyan')
+            print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[b], 'y =', surf1[b])
+            break
             
     
 
-# # PIXEL GRADIENT CHANGE (TECHNIQUE 1)
-#     d_surf1=[(surf1[i+1]-surf1[i]) for i in range(len(surf1)-1)]   # localised change
+# PIXEL GRADIENT CHANGE (TECHNIQUE 1)
+    d_surf1=[(surf1[i+1]-surf1[i]) for i in range(len(surf1)-1)]   # localised change
       
-#     for m in d_surf1:
-#         if m >= 4 in d_surf1[20:im.shape[2]-20]:   # m = gradient threshold (..., -1, -2, 0, 1, 2, ...), im.shape[2]-20 removes 20px of noise from end of image
-#             detected = True
-#             max_value = max(d_surf1)
-#             max_index = d_surf1.index(max_value)
-#             if max_index in np.arange(20,im.shape[2]-20):   # ignores start and end noise
-#                 plt.plot(x[max_index], surf1[max_index], marker='+', color='lightgreen')
-#                 print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[max_index], 'y =', surf1[max_index])
-#                 break
-#         elif m <= -4 in d_surf1[20:im.shape[2]-20]:
-#             detected = True
-#             max_value = max(d_surf1)
-#             max_index = d_surf1.index(max_value)
-#             if max_index in np.arange(20,im.shape[2]-20):
-#                 plt.plot(x[max_index], surf1[max_index], marker='+', color='lightgreen')
-#                 print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[max_index], 'y =', surf1[max_index])
-#                 break
+    for m in d_surf1:
+        if m >= 4 in d_surf1[20:im.shape[2]-20]:   # m = gradient threshold (..., -1, -2, 0, 1, 2, ...), im.shape[2]-20 removes 20px of noise from end of image
+            detected = True
+            max_value = max(d_surf1)
+            max_index = d_surf1.index(max_value)
+            if max_index in np.arange(20,im.shape[2]-20):   # ignores start and end noise
+                plt.plot(x[max_index], surf1[max_index], marker='+', color='lightgreen')
+                print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[max_index], 'y =', surf1[max_index])
+                break
+        elif m <= -4 in d_surf1[20:im.shape[2]-20]:
+            detected = True
+            max_value = max(d_surf1)
+            max_index = d_surf1.index(max_value)
+            if max_index in np.arange(20,im.shape[2]-20):
+                plt.plot(x[max_index], surf1[max_index], marker='+', color='lightgreen')
+                print('Possible point of interest detected!   B-scan #', n, '   Location:', 'x =', x[max_index], 'y =', surf1[max_index])
+                break
 
 
 
@@ -153,13 +147,6 @@ for i in range(start, finish + 1):
             plt.plot(b, i, marker=',', color='cyan')
             tech2_detections = tech2_detections + 1
             break
-        # elif distance <= -16: #-12 default
-        #     detected = True
-        #     #print(distance, x[surf1[b]], surf1[b])
-        #     plt.imshow(projection, cmap='gray')
-        #     plt.plot(b, i, marker=',', color='cyan')
-        #     #count = count+1
-        #     break
 
 
     
